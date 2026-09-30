@@ -1,10 +1,8 @@
 #pragma once
 
-#include <types.h>
-#include <vector.h>
+#include "types.h"
+#include "vector.h"
 
-#define COLOR_GREEN (color){ 0, 255, 0, 255 }
-#define COLOR_BLUE (color){ 0, 0, 255, 255 }
 #define COLOR_BLACK (color){ 0, 0, 0, 255 }
 #define COLOR_WHITE (color){ 255, 255, 255, 255 }
 
@@ -35,43 +33,70 @@
 
 typedef struct
 {
-  uint32 Address;
-  uint32 Pitch;
-  uint32 Width;
-  uint32 Height;
+  unsigned int Address;
+  unsigned int Pitch;
+  unsigned int Width;
+  unsigned int Height;
 } framebuffer;
 
 typedef struct
 {
-  uint8 r, g, b, a;
+  uint8 r;
+  uint8 g;
+  uint8 b;
+  uint8 a;
 } color;
 
 typedef struct
 {
-  uVector Position, Size;
+  uVector Position;
+  uVector Size;
   color   Color;
-} rectangle;
+} rect;
 
 typedef struct
 {
   uVector Position;
-  char    Character;
   float   Scale;
+  char    Character;
   color   Color;
 } character;
 
 typedef struct
 {
   uVector     Position;
-  const char *String;
   float       Scale;
+  const char *String;
   color       Color;
+
+  int LineSpacing;
+  int TabWidth;
 } string;
 
-uint32 color_to_pixel(color Color);
+typedef struct
+{
+  uVector Position;
+  uVector Size;
+  uVector SourceSize;
+  color  *Pixels;
 
-void put_pixel(framebuffer *Buffer, uVector Position, color Color);
-void clear_screen(framebuffer *Buffer, color Color);
-void draw_rectangle(framebuffer *Buffer, rectangle *Rectangle);
-void draw_character(framebuffer *Buffer, character *Character);
-void draw_string(framebuffer *Buffer, string *String);
+  unsigned int Channels;
+} raw_pixels;
+
+void clear_screen(framebuffer *Framebuffer, color Color);
+void draw_rect(framebuffer *Framebuffer, rect *Rectangle);
+void draw_char(framebuffer *Framebuffer, character *Character);
+void draw_string(framebuffer *Framebuffer, string *String);
+void draw_raw(framebuffer *Framebuffer, raw_pixels *Raw);
+
+int     get_string_width(string String);
+int     get_string_height(string String);
+uVector get_string_size(string String);
+
+void         graphics_init(framebuffer *RealFramebuffer,
+                           unsigned int BackbufferAddress);
+framebuffer *get_backbuffer(void);
+void         end_drawing(void);
+
+unsigned int color_to_pixel(color Color);
+color        pixel_to_color(uint32 Color);

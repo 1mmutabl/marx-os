@@ -1,10 +1,19 @@
 bits 32
 
 global kernel_start
+global irq0_stub
+global irq1_stub
+global irq12_stub
+
 global g_TotalRamKB
 global g_HeapStart
 global g_HeapSize
 global g_StackSize
+
+extern kmain
+extern pit_handler
+extern keyboard_handler
+extern mouse_handler
 
 MMAP_TOTAL_KB_ADDR equ 0x9604
 
@@ -20,8 +29,6 @@ HEAP_DIVISOR    equ 4
 STACK_MIN_SIZE  equ 0x40000
 STACK_MAX_SIZE  equ 0x400000
 STACK_DIVISOR   equ 16
-
-extern kmain
 
 kernel_start:
   mov [g_FbAddress], eax
@@ -99,24 +106,42 @@ kernel_start:
     mov dword [g_StackSize], STACK_MIN_SIZE
 
   .layout_done:
-    mov dword [g_HeapStart], HEAP_START
+  mov dword [g_HeapStart], HEAP_START
 
-    mov eax, HEAP_START
-    add eax, [g_HeapSize]
-    add eax, [g_StackSize]
-    mov esp, eax
-    mov ebp, esp
+  mov eax, HEAP_START
+  add eax, [g_HeapSize]
+  add eax, [g_StackSize]
+  mov esp, eax
+  mov ebp, esp
 
-    push dword [g_FbHeight]
-    push dword [g_FbWidth]
-    push dword [g_FbPitch]
-    push dword [g_FbAddress]
-    call kmain
+  push dword [g_FbHeight]
+  push dword [g_FbWidth]
+  push dword [g_FbPitch]
+  push dword [g_FbAddress]
+  call kmain
 
   .hang:
     cli
     hlt
     jmp .hang
+
+irq0_stub:
+  pusha
+  call pit_handler
+  popa
+  iretd
+
+irq1_stub:
+  pusha
+  call keyboard_handler
+  popa
+  iretd
+
+irq12_stub:
+  pusha
+  call mouse_handler
+  popa
+  iretd
 
 section .bss
 align 4

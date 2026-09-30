@@ -1,12 +1,17 @@
 #include <drivers/io/io.h>
 #include <drivers/keyboard/keyboard.h>
+#include <drivers/pic/pic.h>
+#include <string.h>
 
-#define KEYBOARD_STATUS_PORT 0x64
 #define KEYBOARD_DATA_PORT 0x60
 
-#define KEYBOARD_DATA_FULL 0x01
-
-static int Extended = 0;
+static uint64   LastID    = 1;
+static kb_event LastEvent = { .Scancode = 0x00,
+                              .Extended = 0x00,
+                              .State    = KB_NONE,
+                              .Ascii    = '\0',
+                              .Key      = KEY_NONE,
+                              .ID       = 1 };
 
 // clang-format off
 
@@ -175,7 +180,7 @@ static const char Upper[] = {
 };
 
 static const kb_key ScancodeKeys[0x59] = {
-  [0x01] = KEY_ESC,
+  [0x01] = KEY_ESCAPE,
 
   [0x02] = KEY_1,
   [0x03] = KEY_2,
@@ -202,11 +207,11 @@ static const kb_key ScancodeKeys[0x59] = {
   [0x17] = KEY_I,
   [0x18] = KEY_O,
   [0x19] = KEY_P,
-  [0x1A] = KEY_LBRACKET,
-  [0x1B] = KEY_RBRACKET,
+  [0x1A] = KEY_LEFT_BRACKET,
+  [0x1B] = KEY_RIGHT_BRACKET,
   [0x1C] = KEY_ENTER,
 
-  [0x1D] = KEY_LCTRL,
+  [0x1D] = KEY_LEFT_CTRL,
 
   [0x1E] = KEY_A,
   [0x1F] = KEY_S,
@@ -221,7 +226,7 @@ static const kb_key ScancodeKeys[0x59] = {
   [0x28] = KEY_APOSTROPHE,
   [0x29] = KEY_GRAVE,
 
-  [0x2A] = KEY_LSHIFT,
+  [0x2A] = KEY_LEFT_SHIFT,
   [0x2B] = KEY_BACKSLASH,
 
   [0x2C] = KEY_Z,
@@ -235,9 +240,9 @@ static const kb_key ScancodeKeys[0x59] = {
   [0x34] = KEY_PERIOD,
   [0x35] = KEY_SLASH,
 
-  [0x36] = KEY_RSHIFT,
+  [0x36] = KEY_RIGHT_SHIFT,
   [0x37] = KEY_NUMPAD_MULTIPLY,
-  [0x38] = KEY_LALT,
+  [0x38] = KEY_LEFT_ALT,
   [0x39] = KEY_SPACE,
 
   [0x3A] = KEY_CAPS_LOCK,
@@ -272,20 +277,18 @@ static const kb_key ScancodeKeys[0x59] = {
   [0x52] = KEY_NUMPAD_0,
   [0x53] = KEY_NUMPAD_DECIMAL,
 
-  [0x56] = KEY_NONUS_BACKSLASH,
+  [0x56] = KEY_NONE, // Non-US backslash (not in kb_key)
 
   [0x57] = KEY_F11,
   [0x58] = KEY_F12,
 };
 
-static uint8 Keys[0x59];
-
 static const kb_key ExtendedScancodeKeys[0x100] = {
   [0x1C] = KEY_NUMPAD_ENTER,
-  [0x1D] = KEY_RCTRL,
+  [0x1D] = KEY_RIGHT_CTRL,
 
   [0x35] = KEY_NUMPAD_DIVIDE,
-  [0x38] = KEY_RALT,
+  [0x38] = KEY_RIGHT_ALT,
 
   [0x47] = KEY_HOME,
   [0x48] = KEY_UP,
@@ -300,84 +303,75 @@ static const kb_key ExtendedScancodeKeys[0x100] = {
 
   [0x52] = KEY_INSERT,
   [0x53] = KEY_DELETE,
-
-  [0x5B] = KEY_LGUI,
-  [0x5C] = KEY_RGUI,
-  [0x5D] = KEY_MENU,
 };
+
+static kb_state HeldKeys[104];
 
 // clang-format on
 
-int keyboard_has_data()
-{
-  return (port_inb(KEYBOARD_STATUS_PORT) & KEYBOARD_DATA_FULL) != 0;
-}
-
-void zero(kb_input *Input)
-{
-  Input->Scancode = 0x00;
-  Input->State    = KB_NONE;
-  Input->Ascii    = '\0';
-  Input->Key      = KEY_NONE;
-}
-
-kb_key scancode_to_key(uint8 Scancode)
+kb_key scancode_to_key(uint8 Scancode, bool Extended)
 {
   if (Scancode >= 0x59)
     return KEY_NONE;
 
-  return ScancodeKeys[Scancode];
+  return Extended ? ExtendedScancodeKeys[Scancode] : ScancodeKeys[Scancode];
 }
 
-void keyboard_read(kb_input *Input)
+void keyboard_update(void)
 {
-  if (!keyboard_has_data())
+}
+
+bool keyboard_held(kb_key Key)
+{
+  return HeldKeys[Key] == KB_PRESS;
+}
+
+void keyboard_get(kb_event *Event)
+{
+  *Event = LastEvent;
+}
+
+void keyboard_handler(void)
+{
+  uint8 Scancode = port_inb(0x60);
+
+  bool Released = false;
+  bool Extended = false;
+
+  if (Scancode & 0x80)
   {
-    zero(Input);
-    return;
+    Scancode &= 0x7F;
+    Released = true;
   }
-
-  uint8 Scancode = port_inb(KEYBOARD_DATA_PORT);
-
-  if (Scancode == 0xE0)
-  {
-    Extended = 1;
-    keyboard_read(Input);
-    return;
-  }
-
-  int Released = Scancode >= 0x80;
-
-  if (Released)
-    Scancode -= 0x80;
 
   kb_state State = Released ? KB_RELEASE : KB_PRESS;
 
-  Input->State    = State;
-  Input->Scancode = Scancode;
-  Input->Ascii    = '\0';
-
-  char   Ascii = '\0';
-  kb_key Key   = scancode_to_key(Scancode);
-
-  if (Extended)
+  if (Scancode == 0xE0)
   {
-    Key      = ExtendedScancodeKeys[Scancode];
-    Extended = 0;
+    Scancode = port_inb(0x60);
+    Extended = true;
   }
-  else
-    Ascii = Scancodes[Scancode];
 
-  if (keyboard_state(KEY_LSHIFT) == KB_PRESS)
+  kb_key Key = scancode_to_key(Scancode, Extended);
+
+  HeldKeys[Key] = State;
+
+  char Ascii = '\0';
+  Ascii      = Scancodes[Scancode];
+
+  bool Shifted =
+      keyboard_held(KEY_LEFT_SHIFT) || keyboard_held(KEY_RIGHT_SHIFT);
+  if (Shifted)
     Ascii = Upper[Ascii];
 
-  Input->Key   = Key;
-  Input->Ascii = Ascii;
+  kb_event Event;
 
-  Keys[Key] = State;
-}
+  Event.Scancode = Scancode;
+  Event.Ascii    = Ascii;
+  Event.Key      = Key;
+  Event.State    = State;
+  Event.ID       = LastID++;
 
-kb_state keyboard_state(kb_key Key)
-{
-  return Keys[Key];
+  LastEvent = Event;
+  pic_send_eoi(1);
 }
