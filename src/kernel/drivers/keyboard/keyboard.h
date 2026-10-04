@@ -129,7 +129,7 @@ typedef enum
 typedef struct
 {
   uint8    Scancode;
-  uint8    Extended;
+  bool     Extended;
   kb_state State;
   char     Ascii;
   kb_key   Key;
@@ -138,4 +138,5 @@ typedef struct
 
 void keyboard_update(void);
 bool keyboard_held(kb_key Key);
+bool keyboard_capslock(void);
 void keyboard_get(kb_event *Event);

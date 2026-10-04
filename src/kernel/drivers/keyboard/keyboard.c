@@ -5,13 +5,15 @@
 
 #define KEYBOARD_DATA_PORT 0x60
 
-static uint64   LastID    = 1;
-static kb_event LastEvent = { .Scancode = 0x00,
-                              .Extended = 0x00,
-                              .State    = KB_NONE,
-                              .Ascii    = '\0',
-                              .Key      = KEY_NONE,
-                              .ID       = 1 };
+static bool     ExtendedPending = false;
+static bool     CapsLock        = false;
+static uint64   LastID          = 1;
+static kb_event LastEvent       = { .Scancode = 0x00,
+                                    .Extended = 0x00,
+                                    .State    = KB_NONE,
+                                    .Ascii    = '\0',
+                                    .Key      = KEY_NONE,
+                                    .ID       = 1 };
 
 // clang-format off
 
@@ -331,42 +333,57 @@ void keyboard_get(kb_event *Event)
   *Event = LastEvent;
 }
 
+bool keyboard_capslock(void)
+{
+  return CapsLock;
+}
+
 void keyboard_handler(void)
 {
-  uint8 Scancode = port_inb(0x60);
-
-  bool Released = false;
-  bool Extended = false;
-
-  if (Scancode & 0x80)
-  {
-    Scancode &= 0x7F;
-    Released = true;
-  }
-
-  kb_state State = Released ? KB_RELEASE : KB_PRESS;
+  uint8 Scancode = port_inb(KEYBOARD_DATA_PORT);
 
   if (Scancode == 0xE0)
   {
-    Scancode = port_inb(0x60);
-    Extended = true;
+    ExtendedPending = true;
+    pic_send_eoi(1);
+    return;
   }
 
-  kb_key Key = scancode_to_key(Scancode, Extended);
+  bool Extended   = ExtendedPending;
+  ExtendedPending = false;
 
-  HeldKeys[Key] = State;
+  bool Released = (Scancode & 0x80) != 0;
+  Scancode &= 0x7F;
+
+  kb_state State = Released ? KB_RELEASE : KB_PRESS;
+
+  kb_key Key = KEY_NONE;
+  if (Extended)
+    Key = ExtendedScancodeKeys[Scancode];
+  else if (Scancode < 0x59)
+    Key = ScancodeKeys[Scancode];
+
+  if (Key != KEY_NONE)
+    HeldKeys[Key] = State;
+
+  if (Key == KEY_CAPS_LOCK && State == KB_RELEASE)
+    CapsLock = !CapsLock;
 
   char Ascii = '\0';
-  Ascii      = Scancodes[Scancode];
+  if (!Extended && Scancode < 0x59)
+    Ascii = Scancodes[Scancode];
 
   bool Shifted =
       keyboard_held(KEY_LEFT_SHIFT) || keyboard_held(KEY_RIGHT_SHIFT);
-  if (Shifted)
-    Ascii = Upper[Ascii];
+  if (Shifted && Upper[(uint8)Ascii])
+    Ascii = Upper[(uint8)Ascii];
+  else if (CapsLock && Ascii <= 'z' && Ascii >= 'a')
+    Ascii += 'A' - 'a';
 
   kb_event Event;
 
   Event.Scancode = Scancode;
+  Event.Extended = Extended;
   Event.Ascii    = Ascii;
   Event.Key      = Key;
   Event.State    = State;

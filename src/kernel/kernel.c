@@ -1,13 +1,13 @@
+#include <drivers/idt/idt.h>
 #include <drivers/io/io.h>
 #include <drivers/keyboard/keyboard.h>
 #include <drivers/pic/pic.h>
+#include <drivers/pit/pit.h>
 #include <fs/fs.h>
 #include <graphics/graphics.h>
 #include <lib/heap.h>
+#include <lib/tween.h>
 #include <types.h>
-
-#include "drivers/idt/idt.h"
-#include "drivers/pit/pit.h"
 
 int int_to_string(int value, char *buffer, int size)
 {
@@ -193,13 +193,10 @@ static void mtrr_set_write_combining(uint32 PhysBase, uint32 MinSize)
   wrmsr(IA32_MTRR_DEF_TYPE, DefLo, DefHi);
 }
 
-void kmain(framebuffer Framebuffer)
+void init(framebuffer *Buffer)
 {
-  mtrr_set_write_combining(Framebuffer.Address,
-                           Framebuffer.Pitch * Framebuffer.Height);
-
-  graphics_init(&Framebuffer, BACKBUFFER_ADDRESS);
-  framebuffer *Buffer = get_backbuffer();
+  mtrr_set_write_combining(Buffer->Address, Buffer->Pitch * Buffer->Height);
+  graphics_init(Buffer, BACKBUFFER_ADDRESS);
 
   fs_init();
 
@@ -208,41 +205,76 @@ void kmain(framebuffer Framebuffer)
   pit_init(1000);
 
   __asm__ volatile("sti");
+}
 
-  char Buff[1024];
-  size i = 0;
+void kmain(framebuffer Framebuffer)
+{
+  init(&Framebuffer);
+  framebuffer *Buffer = get_backbuffer();
 
-  uint64 LastID = 0;
+  pit_sleep(1000);
 
-  while (1)
+  tween WelcomeTween;
+  tween_init(&WelcomeTween, 0.f, 255.f, 3.f, TWEEN_EASE_OUT_QUINT);
+  tween_start(&WelcomeTween);
+
+  uint32 Before = pit_get_ticks();
+  while (!tween_is_finished(&WelcomeTween))
   {
-    kb_event Event;
-    file_read("/system/input/keyboard.sys", &Event, sizeof(kb_event));
+    uint32 Now   = pit_get_ticks();
+    float  Delta = (Now - Before) / 1000.f;
+    Before       = Now;
 
-    if (Event.ID > LastID)
-    {
-      LastID = Event.ID;
+    tween_update(&WelcomeTween, Delta);
+    float Value = tween_get_value(&WelcomeTween);
 
-      if (Event.State == KB_PRESS)
-      {
-        if (Event.Key == KEY_BACKSPACE)
-          Buff[--i] = '\0';
-        else if (Event.Ascii != '\0')
-          Buff[i++] = Event.Ascii;
-      }
-    }
+    string Welcome;
 
-    string String;
+    Welcome.String = "Welcome to Marx-OS";
+    Welcome.Scale  = 3.f;
+    Welcome.Color  = (color){ 255, 250, 244, Value };
 
-    String.String      = Buff;
-    String.Position    = (uVector){ 10, 10 };
-    String.Color       = COLOR_LIGHT_GRAY;
-    String.Scale       = 2.f;
-    String.LineSpacing = 2;
-    String.TabWidth    = 8;
+    uVector WelcomeSize = get_string_size(Welcome);
+
+    Welcome.Position = (uVector){ Buffer->Width / 2.f - WelcomeSize.x / 2.f,
+                                  Buffer->Height / 2.f - WelcomeSize.y / 2.f };
 
     clear_screen(Buffer, COLOR_BLACK);
-    draw_string(Buffer, &String);
+    draw_string(Buffer, &Welcome);
     end_drawing();
+  }
+
+  tween bgTween;
+  tween_init(&bgTween, 0.f, 255.f, 3.f, TWEEN_EASE_OUT_QUINT);
+  tween_start(&bgTween);
+
+  Before = pit_get_ticks();
+  while (!tween_is_finished(&bgTween))
+  {
+    uint32 Now   = pit_get_ticks();
+    float  Delta = (Now - Before) / 1000.f;
+    Before       = Now;
+
+    tween_update(&bgTween, Delta);
+    float Value = tween_get_value(&bgTween);
+
+    string Welcome;
+
+    Welcome.String = "Welcome to Marx-OS";
+    Welcome.Scale  = 3.f;
+    Welcome.Color  = (color){ 255, 250, 244, 255 };
+
+    uVector WelcomeSize = get_string_size(Welcome);
+
+    Welcome.Position = (uVector){ Buffer->Width / 2.f - WelcomeSize.x / 2.f,
+                                  Buffer->Height / 2.f - WelcomeSize.y / 2.f };
+
+    clear_screen(Buffer, (color){ Value, Value, Value, 255 });
+    draw_string(Buffer, &Welcome);
+    end_drawing();
+  }
+
+  for (;;)
+  {
   }
 }
