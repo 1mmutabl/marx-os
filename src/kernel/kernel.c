@@ -210,7 +210,7 @@ void init(framebuffer *Buffer)
 void kmain(framebuffer Framebuffer)
 {
   init(&Framebuffer);
-  framebuffer *Buffer = get_backbuffer();
+  framebuffer Buffer = *get_backbuffer();
 
   pit_sleep(1000);
 
@@ -232,15 +232,15 @@ void kmain(framebuffer Framebuffer)
 
     Welcome.String = "Welcome to Marx-OS";
     Welcome.Scale  = 3.f;
-    Welcome.Color  = (color){ 255, 250, 244, Value };
+    Welcome.Color  = (color){ 255, 255, 255, Value };
 
     uVector WelcomeSize = get_string_size(Welcome);
 
-    Welcome.Position = (uVector){ Buffer->Width / 2.f - WelcomeSize.x / 2.f,
-                                  Buffer->Height / 2.f - WelcomeSize.y / 2.f };
+    Welcome.Position = (uVector){ Buffer.Width / 2.f - WelcomeSize.x / 2.f,
+                                  Buffer.Height / 2.f - WelcomeSize.y / 2.f };
 
     clear_screen(Buffer, COLOR_BLACK);
-    draw_string(Buffer, &Welcome);
+    draw_string(Buffer, Welcome);
     end_drawing();
   }
 
@@ -262,17 +262,50 @@ void kmain(framebuffer Framebuffer)
 
     Welcome.String = "Welcome to Marx-OS";
     Welcome.Scale  = 3.f;
-    Welcome.Color  = (color){ 255, 250, 244, 255 };
+    Welcome.Color  = COLOR_WHITE;
 
     uVector WelcomeSize = get_string_size(Welcome);
 
-    Welcome.Position = (uVector){ Buffer->Width / 2.f - WelcomeSize.x / 2.f,
-                                  Buffer->Height / 2.f - WelcomeSize.y / 2.f };
+    Welcome.Position = (uVector){ Buffer.Width / 2.f - WelcomeSize.x / 2.f,
+                                  Buffer.Height / 2.f - WelcomeSize.y / 2.f };
 
     clear_screen(Buffer, (color){ Value, Value, Value, 255 });
-    draw_string(Buffer, &Welcome);
+    draw_string(Buffer, Welcome);
     end_drawing();
   }
+
+  rect Rect;
+
+  Rect.Position = (uVector){ 400, 400 };
+  Rect.Size     = (uVector){ 200, 200 };
+  Rect.Color    = COLOR_WHITE;
+
+  rect_hollow Shadows[50];
+  size        ShadowsSize = sizeof(Shadows) / sizeof(Shadows[0]);
+
+  for (size i = 0; i < ShadowsSize; i++)
+  {
+    rect_hollow Shadow;
+
+    Shadow.Position = (uVector){ Rect.Position.x - i, Rect.Position.y - i };
+    Shadow.Size     = (uVector){ Rect.Size.x + i * 2, Rect.Size.y + i * 2 };
+    Shadow.Color =
+        (color){ 0, 0, 0, (float)(ShadowsSize - i) / ShadowsSize * 255 / 2.f };
+    Shadow.Thickness = 1.f;
+
+    Shadows[i] = Shadow;
+  }
+
+  clear_screen(Buffer, COLOR_GRAY);
+
+  for (size i = 0; i < ShadowsSize; i++)
+  {
+    rect_hollow Shadow = Shadows[i];
+    draw_rect(Buffer, Shadow);
+  }
+
+  draw_rect(Buffer, Rect);
+  end_drawing();
 
   for (;;)
   {

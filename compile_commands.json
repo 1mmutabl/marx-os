@@ -437,7 +437,7 @@
       "src/boot/stage2.asm",
       "-f",
       "bin",
-      "-dKERNEL_SECTORS=78",
+      "-dKERNEL_SECTORS=85",
       "-dKERNEL_START_SECTOR=2",
       "-o",
       "bin/stage2.bin.sizing"

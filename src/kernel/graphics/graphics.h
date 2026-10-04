@@ -57,6 +57,37 @@ typedef struct
 typedef struct
 {
   uVector Position;
+  uVector Size;
+  color   Color;
+  float   Thickness;
+} rect_hollow;
+
+typedef struct
+{
+  uVector Start;
+  uVector End;
+  color   Color;
+  float   Thickness;
+} line;
+
+typedef struct
+{
+  uVector Center;
+  float   Radius;
+  color   Color;
+} circle;
+
+typedef struct
+{
+  uVector Center;
+  float   Radius;
+  color   Color;
+  float   Thickness;
+} circle_hollow;
+
+typedef struct
+{
+  uVector Position;
   float   Scale;
   char    Character;
   color   Color;
@@ -83,11 +114,35 @@ typedef struct
   unsigned int Channels;
 } raw_pixels;
 
-void clear_screen(framebuffer *Framebuffer, color Color);
-void draw_rect(framebuffer *Framebuffer, rect *Rectangle);
-void draw_char(framebuffer *Framebuffer, character *Character);
-void draw_string(framebuffer *Framebuffer, string *String);
-void draw_raw(framebuffer *Framebuffer, raw_pixels *Raw);
+typedef struct
+{
+  uVector Position;
+  line   *Lines;
+  color   Color;
+} frame;
+
+void clear_screen(framebuffer Buffer, color Color);
+
+void draw_rect_fill(framebuffer Buffer, rect Rectangle);
+void draw_rect_hollow(framebuffer Buffer, rect_hollow Rectangle);
+
+#define draw_rect(Buffer, Shape)                                               \
+  _Generic((Shape), rect: draw_rect_fill, rect_hollow: draw_rect_hollow)(      \
+      (Buffer), (Shape))
+
+void draw_line(framebuffer Buffer, line Line);
+
+void draw_circle_fill(framebuffer Buffer, circle Circle);
+void draw_circle_hollow(framebuffer Buffer, circle_hollow Circle);
+
+#define draw_circle(Buffer, Shape)                                             \
+  _Generic((Shape),                                                            \
+      circle: draw_circle_fill,                                                \
+      circle_hollow: draw_circle_hollow)((Buffer), (Shape))
+
+void draw_char(framebuffer Buffer, character Character);
+void draw_string(framebuffer Buffer, string String);
+void draw_raw(framebuffer Buffer, raw_pixels Raw);
 
 int     get_string_width(string String);
 int     get_string_height(string String);
