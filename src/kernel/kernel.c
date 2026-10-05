@@ -1,4 +1,4 @@
-#include <desktop-environment/de.h>
+#include <desktop/desktop.h>
 #include <drivers/idt/idt.h>
 #include <drivers/io/io.h>
 #include <drivers/keyboard/keyboard.h>

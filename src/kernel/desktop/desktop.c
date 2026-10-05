@@ -1,4 +1,4 @@
-#include <desktop-environment/de.h>
+#include <desktop/desktop.h>
 #include <fs/fs.h>
 
 framebuffer Buffer;
