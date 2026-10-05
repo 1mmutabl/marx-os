@@ -6,8 +6,8 @@ OBJCOPY := objcopy
 QEMU      := qemu-system-i386
 QEMUFLAGS := -enable-kvm \
 	     -cpu host \
-	     -m 8G \
-	     -smp 4 \
+	     -m 512M \
+	     -smp 2 \
 
 MKFS   := mkfs.fat
 MTOOLS := mcopy
@@ -219,7 +219,9 @@ $(DISK_IMG): $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN)
 .PHONY: run
 run: $(DISK_IMG)
 	@$(QEMU) \
-		$(QEMUFLAGS) -drive format=raw,file=$(DISK_IMG)
+		$(QEMUFLAGS) \
+		-display gtk \
+		-drive format=raw,file=$(DISK_IMG)
 
 .PHONY: clean
 clean:
