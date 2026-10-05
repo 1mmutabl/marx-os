@@ -10,7 +10,9 @@ CPU       ?= host
 QEMUFLAGS := -enable-kvm \
 	     -cpu $(CPU) \
 	     -m $(RAM) \
-	     -smp $(SMP)
+	     -smp $(SMP) \
+	     -device VGA \
+	     -device isa-debug-exit
 
 MKFS   := mkfs.fat
 MTOOLS := mcopy

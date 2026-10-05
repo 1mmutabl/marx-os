@@ -1,31 +1,19 @@
 [
   {
+    "file": "src/kernel/entry.asm",
     "arguments": [
-      "/usr/bin/gcc",
-      "-m32",
-      "-O2",
-      "-march=i686",
-      "-msse2",
-      "-mfpmath=sse",
-      "-ffreestanding",
-      "-fno-pic",
-      "-fno-stack-protector",
-      "-fno-asynchronous-unwind-tables",
-      "-Isrc/kernel",
-      "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "/usr/bin/nasm",
+      "src/kernel/entry.asm",
+      "-f",
+      "elf32",
       "-o",
-      "build/drivers/ata/ata.o",
-      "src/kernel/drivers/ata/ata.c"
+      "build/entry.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/ata/ata.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/ata/ata.o"
+    "output": "build/entry.o"
   },
   {
+    "file": "src/kernel/drivers/keyboard/keyboard.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -39,19 +27,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/keyboard/keyboard.c",
       "-o",
-      "build/drivers/io/io.o",
-      "src/kernel/drivers/io/io.c"
+      "build/drivers/keyboard/keyboard.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/io/io.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/io/io.o"
+    "output": "build/drivers/keyboard/keyboard.o"
   },
   {
+    "file": "src/kernel/drivers/io/io.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -65,19 +49,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/io/io.c",
       "-o",
-      "build/drivers/pic/pic.o",
-      "src/kernel/drivers/pic/pic.c"
+      "build/drivers/io/io.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/pic/pic.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/pic/pic.o"
+    "output": "build/drivers/io/io.o"
   },
   {
+    "file": "src/kernel/drivers/ata/ata.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -91,19 +71,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/ata/ata.c",
       "-o",
-      "build/drivers/pit/pit.o",
-      "src/kernel/drivers/pit/pit.c"
+      "build/drivers/ata/ata.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/pit/pit.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/pit/pit.o"
+    "output": "build/drivers/ata/ata.o"
   },
   {
+    "file": "src/kernel/drivers/idt/idt.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -117,19 +93,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/idt/idt.c",
       "-o",
-      "build/drivers/mouse/mouse.o",
-      "src/kernel/drivers/mouse/mouse.c"
+      "build/drivers/idt/idt.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/mouse/mouse.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/mouse/mouse.o"
+    "output": "build/drivers/idt/idt.o"
   },
   {
+    "file": "src/kernel/drivers/pic/pic.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -143,19 +115,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/pic/pic.c",
       "-o",
-      "build/drivers/idt/idt.o",
-      "src/kernel/drivers/idt/idt.c"
+      "build/drivers/pic/pic.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/idt/idt.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/idt/idt.o"
+    "output": "build/drivers/pic/pic.o"
   },
   {
+    "file": "src/kernel/drivers/pit/pit.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -169,19 +137,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/pit/pit.c",
       "-o",
-      "build/drivers/keyboard/keyboard.o",
-      "src/kernel/drivers/keyboard/keyboard.c"
+      "build/drivers/pit/pit.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/drivers/keyboard/keyboard.c",
-    "output": "/home/max/dev/c/marx-os/build/drivers/keyboard/keyboard.o"
+    "output": "build/drivers/pit/pit.o"
   },
   {
+    "file": "src/kernel/drivers/mouse/mouse.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -195,19 +159,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/drivers/mouse/mouse.c",
       "-o",
-      "build/kernel.o",
-      "src/kernel/kernel.c"
+      "build/drivers/mouse/mouse.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/kernel.c",
-    "output": "/home/max/dev/c/marx-os/build/kernel.o"
+    "output": "build/drivers/mouse/mouse.o"
   },
   {
+    "file": "src/kernel/fs/fatfs/ff.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -221,19 +181,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/fs/fatfs/ff.c",
       "-o",
-      "build/graphics/graphics.o",
-      "src/kernel/graphics/graphics.c"
+      "build/fs/fatfs/ff.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/graphics/graphics.c",
-    "output": "/home/max/dev/c/marx-os/build/graphics/graphics.o"
+    "output": "build/fs/fatfs/ff.o"
   },
   {
+    "file": "src/kernel/fs/fatfs/ffsystem.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -247,19 +203,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/fs/fatfs/ffsystem.c",
       "-o",
-      "build/graphics/font.o",
-      "src/kernel/graphics/font.c"
+      "build/fs/fatfs/ffsystem.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/graphics/font.c",
-    "output": "/home/max/dev/c/marx-os/build/graphics/font.o"
+    "output": "build/fs/fatfs/ffsystem.o"
   },
   {
+    "file": "src/kernel/fs/fatfs/diskio.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -273,19 +225,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/fs/fatfs/diskio.c",
       "-o",
-      "build/desktop-environment/de.o",
-      "src/kernel/desktop-environment/de.c"
+      "build/fs/fatfs/diskio.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/desktop-environment/de.c",
-    "output": "/home/max/dev/c/marx-os/build/desktop-environment/de.o"
+    "output": "build/fs/fatfs/diskio.o"
   },
   {
+    "file": "src/kernel/fs/fatfs/ffunicode.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -299,19 +247,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/fs/fatfs/ffunicode.c",
       "-o",
-      "build/fs/fs.o",
-      "src/kernel/fs/fs.c"
+      "build/fs/fatfs/ffunicode.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/fs/fs.c",
-    "output": "/home/max/dev/c/marx-os/build/fs/fs.o"
+    "output": "build/fs/fatfs/ffunicode.o"
   },
   {
+    "file": "src/kernel/fs/fs.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -325,19 +269,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/fs/fs.c",
       "-o",
-      "build/fs/fatfs/ffunicode.o",
-      "src/kernel/fs/fatfs/ffunicode.c"
+      "build/fs/fs.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/fs/fatfs/ffunicode.c",
-    "output": "/home/max/dev/c/marx-os/build/fs/fatfs/ffunicode.o"
+    "output": "build/fs/fs.o"
   },
   {
+    "file": "src/kernel/lib/tween.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -351,19 +291,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/lib/tween.c",
       "-o",
-      "build/fs/fatfs/diskio.o",
-      "src/kernel/fs/fatfs/diskio.c"
+      "build/lib/tween.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/fs/fatfs/diskio.c",
-    "output": "/home/max/dev/c/marx-os/build/fs/fatfs/diskio.o"
+    "output": "build/lib/tween.o"
   },
   {
+    "file": "src/kernel/lib/vector.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -377,19 +313,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/lib/vector.c",
       "-o",
-      "build/fs/fatfs/ff.o",
-      "src/kernel/fs/fatfs/ff.c"
+      "build/lib/vector.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/fs/fatfs/ff.c",
-    "output": "/home/max/dev/c/marx-os/build/fs/fatfs/ff.o"
+    "output": "build/lib/vector.o"
   },
   {
+    "file": "src/kernel/lib/heap.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -403,19 +335,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/lib/heap.c",
       "-o",
-      "build/fs/fatfs/ffsystem.o",
-      "src/kernel/fs/fatfs/ffsystem.c"
+      "build/lib/heap.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/fs/fatfs/ffsystem.c",
-    "output": "/home/max/dev/c/marx-os/build/fs/fatfs/ffsystem.o"
+    "output": "build/lib/heap.o"
   },
   {
+    "file": "src/kernel/lib/string.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -429,19 +357,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/lib/string.c",
       "-o",
-      "build/lib/heap.o",
-      "src/kernel/lib/heap.c"
+      "build/lib/string.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/lib/heap.c",
-    "output": "/home/max/dev/c/marx-os/build/lib/heap.o"
+    "output": "build/lib/string.o"
   },
   {
+    "file": "src/kernel/graphics/font.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -455,19 +379,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/graphics/font.c",
       "-o",
-      "build/lib/string.o",
-      "src/kernel/lib/string.c"
+      "build/graphics/font.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/lib/string.c",
-    "output": "/home/max/dev/c/marx-os/build/lib/string.o"
+    "output": "build/graphics/font.o"
   },
   {
+    "file": "src/kernel/graphics/graphics.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -481,19 +401,15 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/graphics/graphics.c",
       "-o",
-      "build/lib/tween.o",
-      "src/kernel/lib/tween.c"
+      "build/graphics/graphics.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/lib/tween.c",
-    "output": "/home/max/dev/c/marx-os/build/lib/tween.o"
+    "output": "build/graphics/graphics.o"
   },
   {
+    "file": "src/kernel/desktop-environment/de.c",
     "arguments": [
       "/usr/bin/gcc",
       "-m32",
@@ -507,16 +423,62 @@
       "-fno-asynchronous-unwind-tables",
       "-Isrc/kernel",
       "-c",
-      "-I",
-      "/home/max/dev/cloned/raylib/src",
-      "-I",
-      ".",
+      "src/kernel/desktop-environment/de.c",
       "-o",
-      "build/lib/vector.o",
-      "src/kernel/lib/vector.c"
+      "build/desktop-environment/de.o"
     ],
     "directory": "/home/max/dev/c/marx-os",
-    "file": "/home/max/dev/c/marx-os/src/kernel/lib/vector.c",
-    "output": "/home/max/dev/c/marx-os/build/lib/vector.o"
+    "output": "build/desktop-environment/de.o"
+  },
+  {
+    "file": "src/kernel/kernel.c",
+    "arguments": [
+      "/usr/bin/gcc",
+      "-m32",
+      "-O2",
+      "-march=i686",
+      "-msse2",
+      "-mfpmath=sse",
+      "-ffreestanding",
+      "-fno-pic",
+      "-fno-stack-protector",
+      "-fno-asynchronous-unwind-tables",
+      "-Isrc/kernel",
+      "-c",
+      "src/kernel/kernel.c",
+      "-o",
+      "build/kernel.o"
+    ],
+    "directory": "/home/max/dev/c/marx-os",
+    "output": "build/kernel.o"
+  },
+  {
+    "file": "src/boot/stage2.asm",
+    "arguments": [
+      "/usr/bin/nasm",
+      "src/boot/stage2.asm",
+      "-f",
+      "bin",
+      "-dKERNEL_SECTORS=93",
+      "-dKERNEL_START_SECTOR=2",
+      "-o",
+      "bin/stage2.bin.sizing"
+    ],
+    "directory": "/home/max/dev/c/marx-os",
+    "output": "bin/stage2.bin.sizing"
+  },
+  {
+    "file": "src/boot/boot.asm",
+    "arguments": [
+      "/usr/bin/nasm",
+      "src/boot/boot.asm",
+      "-f",
+      "bin",
+      "-dSTAGE2_SECTORS=2",
+      "-o",
+      "bin/boot.bin"
+    ],
+    "directory": "/home/max/dev/c/marx-os",
+    "output": "bin/boot.bin"
   }
 ]

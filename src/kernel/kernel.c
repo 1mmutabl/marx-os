@@ -1,15 +1,16 @@
+#include <desktop-environment/de.h>
 #include <drivers/idt/idt.h>
 #include <drivers/io/io.h>
 #include <drivers/keyboard/keyboard.h>
+#include <drivers/mouse/mouse.h>
 #include <drivers/pic/pic.h>
 #include <drivers/pit/pit.h>
 #include <fs/fs.h>
 #include <graphics/graphics.h>
 #include <lib/heap.h>
 #include <lib/tween.h>
+#include <stdio.h>
 #include <types.h>
-
-#include "desktop-environment/de.h"
 
 int int_to_string(int value, char *buffer, int size)
 {
@@ -205,6 +206,7 @@ void init(framebuffer *Buffer)
   heap_init(g_HeapStart, g_HeapSize);
   idt_init();
   pit_init(1000);
+  mouse_init(*Buffer);
 
   __asm__ volatile("sti");
 }
@@ -294,11 +296,35 @@ void kmain(framebuffer Framebuffer)
 
   de_init(Buffer);
 
-  clear_screen(Buffer, COLOR_BLUE);
-  de_draw();
+  clear_screen(Buffer, COLOR_BLACK);
+  // de_draw();
   end_drawing();
 
   for (;;)
   {
+    ms_event Event;
+    mouse_get(&Event);
+
+    rect Cursor;
+
+    Cursor.Position = Event.Position;
+    Cursor.Size     = (uVector){ 10, 20 };
+    Cursor.Color    = COLOR_LIGHT_GRAY;
+
+    char Buff[1024];
+    snprintf(Buff, sizeof(Buff), "Left: %d\nRight: %d\nMiddle: %d",
+             Event.Buttons[0], Event.Buttons[1], Event.Buttons[2]);
+
+    string String;
+
+    String.String   = Buff;
+    String.Position = (uVector){ 10, 250 };
+    String.Color    = COLOR_LIGHT_GRAY;
+    String.Scale    = 3.f;
+
+    clear_screen(Buffer, COLOR_BLACK);
+    draw_string(Buffer, String);
+    draw_rect(Buffer, Cursor);
+    end_drawing();
   }
 }
