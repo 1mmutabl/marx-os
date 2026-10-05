@@ -1,3 +1,3 @@
 make clean
 bear -- make
-make run
+make run RAM=512M SMP=2

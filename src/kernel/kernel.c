@@ -9,6 +9,8 @@
 #include <lib/tween.h>
 #include <types.h>
 
+#include "desktop-environment/de.h"
+
 int int_to_string(int value, char *buffer, int size)
 {
   unsigned int magnitude;
@@ -274,37 +276,26 @@ void kmain(framebuffer Framebuffer)
     end_drawing();
   }
 
-  rect Rect;
+  string Wait;
 
-  Rect.Position = (uVector){ 400, 400 };
-  Rect.Size     = (uVector){ 200, 200 };
-  Rect.Color    = COLOR_WHITE;
+  Wait.String = "Wait while Marx-OS is\ninitializing other stuff.";
+  Wait.Scale  = 2.f;
+  Wait.Color  = (color){ 32, 32, 32, 0.9 * 255 };
 
-  rect_hollow Shadows[50];
-  size        ShadowsSize = sizeof(Shadows) / sizeof(Shadows[0]);
+  uVector WaitSize = get_string_size(Wait);
+  Wait.Position    = (uVector){ Buffer.Width / 2.f - WaitSize.x / 2.f,
+                                Buffer.Height / 2.f - WaitSize.y / 2.f };
 
-  for (size i = 0; i < ShadowsSize; i++)
-  {
-    rect_hollow Shadow;
+  Wait.LineSpacing = 5;
 
-    Shadow.Position = (uVector){ Rect.Position.x - i, Rect.Position.y - i };
-    Shadow.Size     = (uVector){ Rect.Size.x + i * 2, Rect.Size.y + i * 2 };
-    Shadow.Color =
-        (color){ 0, 0, 0, (float)(ShadowsSize - i) / ShadowsSize * 255 / 2.f };
-    Shadow.Thickness = 1.f;
+  clear_screen(Buffer, COLOR_WHITE);
+  draw_string(Buffer, Wait);
+  end_drawing();
 
-    Shadows[i] = Shadow;
-  }
+  de_init(Buffer);
 
-  clear_screen(Buffer, COLOR_GRAY);
-
-  for (size i = 0; i < ShadowsSize; i++)
-  {
-    rect_hollow Shadow = Shadows[i];
-    draw_rect(Buffer, Shadow);
-  }
-
-  draw_rect(Buffer, Rect);
+  clear_screen(Buffer, COLOR_BLUE);
+  de_draw();
   end_drawing();
 
   for (;;)

@@ -278,6 +278,32 @@
       "-I",
       ".",
       "-o",
+      "build/desktop-environment/de.o",
+      "src/kernel/desktop-environment/de.c"
+    ],
+    "directory": "/home/max/dev/c/marx-os",
+    "file": "/home/max/dev/c/marx-os/src/kernel/desktop-environment/de.c",
+    "output": "/home/max/dev/c/marx-os/build/desktop-environment/de.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-m32",
+      "-O2",
+      "-march=i686",
+      "-msse2",
+      "-mfpmath=sse",
+      "-ffreestanding",
+      "-fno-pic",
+      "-fno-stack-protector",
+      "-fno-asynchronous-unwind-tables",
+      "-Isrc/kernel",
+      "-c",
+      "-I",
+      "/home/max/dev/cloned/raylib/src",
+      "-I",
+      ".",
+      "-o",
       "build/fs/fs.o",
       "src/kernel/fs/fs.c"
     ],

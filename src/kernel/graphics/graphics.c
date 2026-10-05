@@ -53,6 +53,138 @@ static inline void put_pixel(framebuffer Buffer, int x, int y, color Color)
   *Pixel = blend_pixel(*Pixel, Color);
 }
 
+static float shadow_sqrt(float Value)
+{
+  if (Value <= 0.0f)
+    return 0.0f;
+
+  float Result = Value;
+
+  for (int i = 0; i < 8; i++)
+    Result = 0.5f * (Result + Value / Result);
+
+  return Result;
+}
+
+static inline uint8 shadow_alpha(shadow Shadow, float Distance)
+{
+  if (Distance <= 0.0f)
+    return (uint8)(((unsigned int)Shadow.Opacity * Shadow.Color.a) / 255);
+
+  if (Shadow.BlurRadius == 0)
+    return 0;
+
+  float Blur = (float)Shadow.BlurRadius;
+
+  if (Distance >= Blur)
+    return 0;
+
+  float Alpha = 1.0f - Distance / Blur;
+
+  return (uint8)(((unsigned int)Shadow.Opacity * Shadow.Color.a * Alpha) /
+                 (255.0f));
+}
+
+static void draw_rect_shadow(framebuffer Buffer, rect Rectangle)
+{
+  shadow Shadow = Rectangle.Shadow;
+
+  if (Shadow.Opacity == 0 || Shadow.Color.a == 0)
+    return;
+
+  int Blur   = (int)Shadow.BlurRadius;
+  int Spread = (int)Shadow.Spread;
+
+  int X = (int)Rectangle.Position.x + (int)Shadow.Offset.x;
+  int Y = (int)Rectangle.Position.y + (int)Shadow.Offset.y;
+
+  int Width  = (int)Rectangle.Size.x;
+  int Height = (int)Rectangle.Size.y;
+
+  int Left   = X - Spread - Blur;
+  int Top    = Y - Spread - Blur;
+  int Right  = X + Width + Spread + Blur;
+  int Bottom = Y + Height + Spread + Blur;
+
+  int ShadowLeft   = X - Spread;
+  int ShadowTop    = Y - Spread;
+  int ShadowRight  = X + Width + Spread;
+  int ShadowBottom = Y + Height + Spread;
+
+  for (int y = Top; y < Bottom; y++)
+  {
+    for (int x = Left; x < Right; x++)
+    {
+      float Dx = 0.0f;
+      float Dy = 0.0f;
+
+      if (x < ShadowLeft)
+        Dx = (float)(ShadowLeft - x);
+      else if (x >= ShadowRight)
+        Dx = (float)(x - ShadowRight + 1);
+
+      if (y < ShadowTop)
+        Dy = (float)(ShadowTop - y);
+      else if (y >= ShadowBottom)
+        Dy = (float)(y - ShadowBottom + 1);
+
+      float Distance = shadow_sqrt(Dx * Dx + Dy * Dy);
+
+      uint8 Alpha = shadow_alpha(Shadow, Distance);
+
+      if (Alpha == 0)
+        continue;
+
+      color Color = Shadow.Color;
+      Color.a     = Alpha;
+
+      put_pixel(Buffer, x, y, Color);
+    }
+  }
+}
+
+static void draw_circle_shadow(framebuffer Buffer, circle Circle)
+{
+  shadow Shadow = Circle.Shadow;
+
+  if (Shadow.Opacity == 0 || Shadow.Color.a == 0)
+    return;
+
+  int Blur   = (int)Shadow.BlurRadius;
+  int Spread = (int)Shadow.Spread;
+
+  int CenterX = (int)Circle.Center.x + (int)Shadow.Offset.x;
+  int CenterY = (int)Circle.Center.y + (int)Shadow.Offset.y;
+
+  float Radius = Circle.Radius + Spread;
+
+  int Left   = CenterX - (int)Radius - Blur;
+  int Top    = CenterY - (int)Radius - Blur;
+  int Right  = CenterX + (int)Radius + Blur;
+  int Bottom = CenterY + (int)Radius + Blur;
+
+  for (int y = Top; y <= Bottom; y++)
+  {
+    for (int x = Left; x <= Right; x++)
+    {
+      float Dx = (float)(x - CenterX);
+      float Dy = (float)(y - CenterY);
+
+      float Distance = shadow_sqrt(Dx * Dx + Dy * Dy) - Radius;
+
+      uint8 Alpha = shadow_alpha(Shadow, Distance);
+
+      if (Alpha == 0)
+        continue;
+
+      color Color = Shadow.Color;
+      Color.a     = Alpha;
+
+      put_pixel(Buffer, x, y, Color);
+    }
+  }
+}
+
 unsigned int color_to_pixel(color Color)
 {
   return ((unsigned int)Color.r << 16) | ((unsigned int)Color.g << 8) |
@@ -81,6 +213,9 @@ void clear_screen(framebuffer Buffer, color Color)
 
 void draw_rect_fill(framebuffer Buffer, rect Rectangle)
 {
+  if (Rectangle.shadow_Use)
+    draw_rect_shadow(Buffer, Rectangle);
+
   if (Rectangle.Color.a == 0)
     return;
 
@@ -162,9 +297,7 @@ void draw_line(framebuffer Buffer, line Line)
     for (int oy = -Radius; oy <= Radius; oy++)
     {
       for (int ox = -Radius; ox <= Radius; ox++)
-      {
         put_pixel(Buffer, x0 + ox, y0 + oy, Line.Color);
-      }
     }
 
     if (x0 == x1 && y0 == y1)
@@ -188,6 +321,9 @@ void draw_line(framebuffer Buffer, line Line)
 
 void draw_circle_fill(framebuffer Buffer, circle Circle)
 {
+  if (Circle.shadow_Use)
+    draw_circle_shadow(Buffer, Circle);
+
   if (Circle.Color.a == 0)
     return;
 
@@ -439,12 +575,12 @@ uVector get_string_size(string String)
 static framebuffer *RealBuffer;
 static framebuffer  BackBuffer;
 
-void graphics_init(framebuffer *RealFramebuffer, unsigned int BackbufferAddress)
+void graphics_init(framebuffer *RealFramebuffer, unsigned int BackBufferAddress)
 {
   RealBuffer = RealFramebuffer;
 
   BackBuffer         = *RealFramebuffer;
-  BackBuffer.Address = BackbufferAddress;
+  BackBuffer.Address = BackBufferAddress;
 }
 
 framebuffer *get_backbuffer(void)

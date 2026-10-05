@@ -4,10 +4,13 @@ LD      := ld
 OBJCOPY := objcopy
 
 QEMU      := qemu-system-i386
+RAM       ?= 8G
+SMP       ?= 4
+CPU       ?= host
 QEMUFLAGS := -enable-kvm \
-	     -cpu host \
-	     -m 512M \
-	     -smp 2 \
+	     -cpu $(CPU) \
+	     -m $(RAM) \
+	     -smp $(SMP)
 
 MKFS   := mkfs.fat
 MTOOLS := mcopy

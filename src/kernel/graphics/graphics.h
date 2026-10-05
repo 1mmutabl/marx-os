@@ -49,9 +49,21 @@ typedef struct
 
 typedef struct
 {
+  size    BlurRadius;
+  color   Color;
+  uVector Offset;
+  size    Spread;
+  uint8   Opacity;
+} shadow;
+
+typedef struct
+{
   uVector Position;
   uVector Size;
   color   Color;
+
+  bool   shadow_Use;
+  shadow Shadow;
 } rect;
 
 typedef struct
@@ -75,6 +87,9 @@ typedef struct
   uVector Center;
   float   Radius;
   color   Color;
+
+  bool   shadow_Use;
+  shadow Shadow;
 } circle;
 
 typedef struct
@@ -149,7 +164,7 @@ int     get_string_height(string String);
 uVector get_string_size(string String);
 
 void         graphics_init(framebuffer *RealFramebuffer,
-                           unsigned int BackbufferAddress);
+                           unsigned int BackBufferAddress);
 framebuffer *get_backbuffer(void);
 void         end_drawing(void);
 
