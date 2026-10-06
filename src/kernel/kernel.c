@@ -312,7 +312,8 @@ void kmain(framebuffer Framebuffer)
     Cursor.Color    = COLOR_LIGHT_GRAY;
 
     char Buff[1024];
-    snprintf(Buff, sizeof(Buff), "Left: %d\nRight: %d\nMiddle: %d",
+    snprintf(Buff, sizeof(Buff),
+             "Left: %d\nRight: %d\nMiddle: %d\n\ndid you know jinxy is gay?",
              Event.Buttons[0], Event.Buttons[1], Event.Buttons[2]);
 
     string String;

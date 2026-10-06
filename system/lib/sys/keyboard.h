@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SYS_KEYBOARD_H
+#define SYS_KEYBOARD_H
 
 #include <stdbool.h>
 #include <types.h>
@@ -84,3 +85,5 @@ void keyboard_update(void);
 bool keyboard_held(kb_key Key);
 bool keyboard_capslock(void);
 void keyboard_get(kb_event *Event);
+
+#endif

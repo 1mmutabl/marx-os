@@ -1,11 +1,11 @@
-#include "fs.h"
-
-#include "drivers/ata/ata.h"
-#include "drivers/keyboard/keyboard.h"
-#include "fs/fatfs/ff.h"
-#include "lib/heap.h"
-#include "lib/string.h"
-#include "types.h"
+#include <drivers/ata/ata.h>
+#include <drivers/keyboard/keyboard.h>
+#include <drivers/mouse/mouse.h>
+#include <fs/fatfs/ff.h>
+#include <fs/fs.h>
+#include <lib/heap.h>
+#include <lib/string.h>
+#include <types.h>
 
 FATFS FileSystem;
 
@@ -15,6 +15,7 @@ FRESULT fs_init(void)
   FRESULT Result = f_mount(&FileSystem, "", 1);
 
   file_create("/system/input/keyboard.sys");
+  file_create("/system/input/mouse.sys");
 
   return Result;
 }
@@ -73,6 +74,8 @@ FRESULT file_write(const char *Path, const void *Write, int Size)
 {
   if (strcmp(Path, "/system/input/keyboard.sys"))
     return FR_INVALID_PARAMETER;
+  else if (strcmp(Path, "/system/input/mouse.sys"))
+    return FR_INVALID_PARAMETER;
 
   FIL File;
 
@@ -106,6 +109,14 @@ FRESULT file_read(const char *Path, void *Read, int Size)
       return FR_INVALID_PARAMETER;
 
     keyboard_get((kb_event *)Read);
+    return FR_OK;
+  }
+  else if (strcmp(Path, "/system/input/mouse.sys"))
+  {
+    if (Size != sizeof(ms_event))
+      return FR_INVALID_PARAMETER;
+
+    mouse_get((ms_event *)Read);
     return FR_OK;
   }
 
