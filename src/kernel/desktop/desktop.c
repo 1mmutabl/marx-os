@@ -1,13 +1,22 @@
 #include <desktop/desktop.h>
 #include <fs/fs.h>
+#include <types.h>
+
+#define BACKGROUND_PATH "/system/background/bg-1.jpg"
 
 framebuffer Buffer;
-
-static int taskbar_Height = 32;
+static int  taskbar_Height = 32;
 
 void de_init(framebuffer Framebuffer)
 {
   Buffer = Framebuffer;
+
+  if (!file_exists(BACKGROUND_PATH))
+    return;
+
+  uint bg_Size = file_size(BACKGROUND_PATH);
+  char bg_Read[bg_Size];
+  file_read(BACKGROUND_PATH, bg_Read, bg_Size);
 }
 
 void de_draw()

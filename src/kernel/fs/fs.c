@@ -144,7 +144,7 @@ FRESULT file_read(const char *Path, void *Read, int Size)
   return FR_OK;
 }
 
-int file_size(const char *Path)
+uint file_size(const char *Path)
 {
   FILINFO Info;
 
