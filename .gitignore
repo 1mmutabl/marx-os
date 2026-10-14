@@ -1,3 +1,5 @@
 bin/
 build/
+installer/
 .cache/
+compile_commands.json
